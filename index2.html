@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Bliżej córek ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:#0a120a; --bg2:#0d180d; --bg3:#101f10;
+    --border:#1e2e1e; --border2:#2a3e2a; --border3:#3a5a3a;
+    --accent:#6aaa50; --accent2:#4a8a38;
+    --text:#d8f0d0; --text2:#8ab88a; --text3:#5a7a5a; --text4:#3a5a3a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:var(--bg); color:var(--text); font-family:'EB Garamond',Georgia,serif; overscroll-behavior:none; }
+  body { display:flex; flex-direction:column; max-width:600px; margin:0 auto; min-height:100vh; }
+
+#header { padding:24px 20px 0; border-bottom:1px solid var(–border); flex-shrink:0; }
+#header h1 { font-family:‘Cormorant Garamond’,Georgia,serif; font-size:26px; font-weight:300; letter-spacing:0.06em; }
+#header h1 span { color:var(–accent); }
+#subtitle { font-size:11px; color:var(–accent); letter-spacing:0.2em; text-transform:uppercase; margin-top:2px; }
+#level-row { display:flex; align-items:center; gap:10px; margin-top:14px; }
+#level-icon { font-size:22px; color:var(–accent); }
+#level-badge { font-size:11px; color:var(–accent); border:1px solid var(–border2); padding:3px 12px; border-radius:20px; letter-spacing:0.08em; }
+#xp-text { font-size:12px; color:var(–text3); margin-left:auto; }
+#progress-bar { height:2px; background:var(–border); margin:10px 0 0; overflow:hidden; }
+#progress-fill { height:100%; background:linear-gradient(90deg,#3a7a3a,var(–accent)); transition:width 0.8s ease; }
+
+#tabs { display:flex; }
+.tab-btn { flex:1; padding:12px 6px; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; background:none; border:none; color:var(–text4); border-bottom:2px solid transparent; font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.tab-btn.active { color:var(–accent); border-bottom-color:var(–accent); }
+
+#content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+#filters { display:flex; gap:8px; padding:14px 20px 8px; flex-wrap:wrap; }
+.filter-btn { padding:5px 14px; font-size:11px; border-radius:20px; cursor:pointer; border:1px solid var(–border2); background:transparent; color:var(–text3); font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.filter-btn.active { border-color:var(–accent); background:#1a2e1a; color:var(–accent); }
+
+#cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 20px 32px; }
+@media(max-width:360px) { #cards-grid { grid-template-columns:1fr; } }
+
+.card { background:var(–bg2); border-radius:8px; padding:14px 14px 12px; cursor:pointer; transition:background 0.2s; position:relative; overflow:hidden; border:1px solid transparent; }
+.card:active { background:var(–bg3); }
+.card-bar { position:absolute; top:0; left:0; width:3px; height:100%; border-radius:3px 0 0 3px; }
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.who-tag { font-size:9px; letter-spacing:0.06em; border:1px solid; padding:2px 7px; border-radius:10px; white-space:nowrap; }
+.cat-tag { font-size:9px; opacity:0.75; }
+.card-title { font-size:13px; color:var(–text); line-height:1.4; margin-bottom:5px; }
+.card-short { font-size:11px; color:var(–text4); line-height:1.5; }
+.card-meta { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+.card-dots { font-size:9px; color:var(–text4); letter-spacing:2px; }
+.xp-badge { font-size:10px; color:var(–accent); background:#1a2e1a; padding:2px 7px; border-radius:10px; }
+.ref-dot { position:absolute; top:10px; right:10px; font-size:11px; color:var(–accent); opacity:0.5; }
+
+.empty-state { text-align:center; padding:60px 24px; color:var(–text4); }
+.empty-icon { font-size:36px; margin-bottom:14px; }
+.empty-text { font-size:14px; line-height:1.7; }
+.empty-sub { font-size:12px; margin-top:6px; opacity:0.6; font-style:italic; }
+
+.done-item { background:var(–bg); border:1px solid var(–border); border-radius:8px; padding:12px 16px; margin:0 20px 8px; display:flex; justify-content:space-between; align-items:center; opacity:0.65; cursor:pointer; }
+.done-title { font-size:13px; color:var(–text4); text-decoration:line-through; }
+.done-sub { font-size:10px; color:var(–text4); margin-top:2px; }
+.done-xp { font-size:11px; color:var(–text4); flex-shrink:0; margin-left:10px; }
+
+.ref-item { background:var(–bg2); border:1px solid var(–border2); border-radius:8px; padding:16px; margin:0 20px 10px; animation:fadeIn 0.3s ease; }
+.ref-item-title { font-size:14px; color:var(–text); margin-bottom:10px; }
+.ref-item-text { font-size:13px; color:var(–text2); line-height:1.7; font-style:italic; border-left:2px solid var(–border2); padding-left:12px; }
+
+.btn-primary { background:var(–accent); border:none; color:var(–bg); padding:10px 20px; border-radius:6px; cursor:pointer; font-size:13px; letter-spacing:0.08em; font-family:‘EB Garamond’,Georgia,serif; font-weight:500; transition:all 0.2s; }
+.btn-primary:active { background:var(–accent2); }
+.btn-secondary { background:#1a2e1a; border:1px solid var(–border3); color:var(–accent); padding:10px 18px; border-radius:6px; cursor:pointer; font-size:13px; letter-spacing:0.08em; font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.btn-secondary:active { background:#1e3a1e; }
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+
+#modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; align-items:flex-end; justify-content:center; }
+#modal-overlay.open { display:flex; }
+#modal-box { background:var(–bg2); border:1px solid var(–border2); border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; padding:28px 24px 48px; animation:slideUp 0.3s ease; position:relative; }
+.modal-close { position:absolute; top:18px; right:18px; background:none; border:none; color:var(–text3); cursor:pointer; font-size:26px; line-height:1; }
+.modal-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.modal-title { font-family:‘Cormorant Garamond’,Georgia,serif; font-size:22px; font-weight:300; color:var(–text); line-height:1.3; margin-bottom:14px; }
+.modal-desc { font-size:14px; color:var(–text2); line-height:1.75; margin-bottom:22px; border-left:2px solid var(–border2); padding-left:14px; font-style:italic; }
+.ref-label { font-size:10px; color:var(–text4); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:8px; }
+textarea { width:100%; background:var(–bg); border:1px solid var(–border2); border-radius:6px; color:var(–text); padding:12px; font-size:14px; font-family:‘EB Garamond’,Georgia,serif; line-height:1.6; resize:vertical; min-height:110px; outline:none; transition:border-color 0.2s; }
+textarea:focus { border-color:var(–border3); }
+.saved-note { font-size:11px; color:var(–accent); margin-top:6px; height:16px; transition:opacity 0.3s; opacity:0; }
+.saved-note.show { opacity:1; }
+
+#reset-btn { display:block; margin:20px auto 8px; background:none; border:none; color:var(–text4); font-size:11px; font-family:‘EB Garamond’,Georgia,serif; cursor:pointer; opacity:0.5; letter-spacing:0.08em; padding:8px; }
+
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+</style>
+
+</head>
+<body>
+
+<div id="header">
+  <h1>Bliżej córek <span>✦</span></h1>
+  <div id="subtitle">journey ku bliskości</div>
+  <div id="level-row">
+    <span id="level-icon">◌</span>
+    <span id="level-badge">Obserwatorka</span>
+    <span id="xp-text">0 XP</span>
+  </div>
+  <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('todo')">Do zrobienia</button>
+    <button class="tab-btn" onclick="switchTab('done')">Zrobione</button>
+    <button class="tab-btn" onclick="switchTab('reflections')">Refleksje</button>
+  </div>
+</div>
+
+<div id="content">
+  <div id="tab-todo">
+    <div id="filters">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Wszystkie</button>
+      <button class="filter-btn" data-filter="both" onclick="setFilter('both')">Obie</button>
+      <button class="filter-btn" data-filter="older" onclick="setFilter('older')">Starsza</button>
+      <button class="filter-btn" data-filter="younger" onclick="setFilter('younger')">Młodsza</button>
+    </div>
+    <div id="cards-grid"></div>
+  </div>
+
+  <div id="tab-done" style="display:none;padding-top:14px">
+    <div id="done-list"></div>
+    <button id="reset-btn" onclick="resetAll()">↺ zacznij od nowa</button>
+  </div>
+
+  <div id="tab-reflections" style="display:none;padding-top:14px">
+    <div id="reflections-list"></div>
+  </div>
+</div>
+
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-tags" id="modal-tags"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="ref-label">Twoja refleksja</div>
+    <textarea id="ref-input" placeholder="Co poczułaś? Co odkryłaś? Co było trudne lub piękne…"></textarea>
+    <div class="saved-note" id="saved-note">✦ refleksja zapisana</div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="saveReflection()">✦ Zapisz refleksję</button>
+      <button class="btn-primary" id="complete-btn" onclick="completeModal()" style="margin-left:auto">✓ Ukończone</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS=[
+  {name:"Obserwatorka",min:0,icon:"◌"},
+  {name:"Obecna Mama",min:80,icon:"◎"},
+  {name:"Uważna Mama",min:200,icon:"●"},
+  {name:"Bliska Mama",min:380,icon:"◉"},
+  {name:"Bezpieczna Przystań",min:600,icon:"✦"},
+];
+const WHO={
+  both:{label:"Obie",color:"#8fa882"},
+  older:{label:"Starsza 6l.",color:"#7a9e9f"},
+  younger:{label:"Młodsza 4l.",color:"#c4956a"},
+};
+const CAT={obecność:"#9b8ea8",bliskość:"#c4956a"};
+const CHALLENGES=[
+  {id:1,who:"both",cat:"obecność",lvl:1,xp:15,title:"Podłoga zamiast kanapy",desc:"Usiądź z dziewczynkami na podłodze bez telefonu. Daj się wciągnąć w cokolwiek robią – 10 minut."},
+  {id:2,who:"both",cat:"bliskość",lvl:1,xp:15,title:"Wieczorny rytuał przytulania",desc:"Przed snem przytul każdą i powiedz jedną konkretną rzecz która Cię w niej dziś zachwyciła."},
+  {id:3,who:"both",cat:"obecność",lvl:1,xp:20,title:"Wspólne gotowanie",desc:"Ugotujcie razem coś prostego. Każda ma zadanie. Liczy się proces."},
+  {id:4,who:"older",cat:"bliskość",lvl:1,xp:15,title:"Zapytaj o jej ulubione",desc:"Zapytaj o ulubiony kolor, zwierzę i jedzenie – i naprawdę słuchaj."},
+  {id:5,who:"older",cat:"obecność",lvl:1,xp:20,title:"15 minut tylko dla niej",desc:"Tylko dla starszej, ona wybiera co robicie, bez telefonu i młodszej siostry."},
+  {id:6,who:"older",cat:"bliskość",lvl:1,xp:15,title:"Narysujcie razem cokolwiek",desc:"Bez oceniania, bez doradzania."},
+  {id:7,who:"younger",cat:"obecność",lvl:1,xp:15,title:"Pobaw się w jej świat",desc:"Na jej zasadach, w jej tempie, minimum 10 minut."},
+  {id:8,who:"younger",cat:"bliskość",lvl:1,xp:15,title:"Zbudujcie coś razem",desc:"Wieżę, namiot, zamek. Ona decyduje jak."},
+  {id:9,who:"younger",cat:"obecność",lvl:1,xp:15,title:"Czytaj z przerwami",desc:"Zatrzymuj się i pytaj 'co myślisz co się stanie?'."},
+  {id:10,who:"both",cat:"bliskość",lvl:2,xp:25,title:"Stare zdjęcie",desc:"Znajdź stare zdjęcie rodzinne i opowiedz co pamiętasz. Zapytaj jak one to zapamiętały."},
+  {id:11,who:"both",cat:"obecność",lvl:2,xp:25,title:"Spacer bez celu",desc:"Idźcie gdzie one chcą. Nie spieszcie się."},
+  {id:12,who:"both",cat:"bliskość",lvl:2,xp:30,title:"Wieczór bez ekranów",desc:"Kolacja bez telewizora i telefonów."},
+  {id:13,who:"older",cat:"bliskość",lvl:2,xp:25,title:"Co ją złości w szkole",desc:"Wysłuchaj bez dawania rad."},
+  {id:14,who:"older",cat:"obecność",lvl:2,xp:30,title:"Naucz się czegoś od niej",desc:"Ona uczy, ty jesteś uczniem na serio."},
+  {id:15,who:"older",cat:"bliskość",lvl:2,xp:25,title:"Opowiedz o swoim dzieciństwie",desc:"Jedna historia, dostosowana do jej poziomu."},
+  {id:16,who:"younger",cat:"bliskość",lvl:2,xp:25,title:"Stwórzcie bajkę",desc:"Zacznij, w połowie oddaj głos jej. Śmiej się z efektów."},
+  {id:17,who:"younger",cat:"obecność",lvl:2,xp:20,title:"Tańczcie razem",desc:"Jej muzyka, daj się prowadzić."},
+  {id:18,who:"younger",cat:"bliskość",lvl:2,xp:30,title:"Nazwij jej emocje",desc:"Przykucnij i powiedz 'Widzę że jesteś teraz…'."},
+  {id:19,who:"both",cat:"bliskość",lvl:3,xp:40,title:"Rytuał różyczka i kolec",desc:"Każda mówi jedną dobrą i jedną trudną rzecz z dnia. Też ty."},
+  {id:20,who:"both",cat:"obecność",lvl:3,xp:45,title:"Dzień bez 'poczekaj'",desc:"Za każdym razem gdy przychodzą – odkładasz co robisz."},
+  {id:21,who:"both",cat:"bliskość",lvl:3,xp:40,title:"Wyjście tylko z nimi",desc:"Bez partnera. One wybierają dokąd."},
+  {id:22,who:"older",cat:"bliskość",lvl:3,xp:40,title:"Porozmawiaj o przyjaźni",desc:"Co lubi w przyjaciółce. Czy coś w przyjaźni ją boli."},
+  {id:23,who:"older",cat:"obecność",lvl:3,xp:45,title:"Wieczór tylko ona i ty",desc:"Gdy młodsza śpi. Coś co jest tylko wasze."},
+  {id:24,who:"younger",cat:"bliskość",lvl:3,xp:45,title:"Zostań w trudnym momencie",desc:"Nie uciszaj, nie odchodź. 'Jestem tu z tobą'."},
+  {id:25,who:"younger",cat:"obecność",lvl:3,xp:40,title:"Jeden poranek w jej rytmie",desc:"Bez pośpiechu. Wstajesz wcześniej żeby dać jej czas."},
+  {id:26,who:"both",cat:"bliskość",lvl:4,xp:60,title:"Przeproś konkretnie",desc:"Wróć do momentu gdy straciłaś cierpliwość. 'Przepraszam za…'. Bez tłumaczeń."},
+  {id:27,who:"both",cat:"obecność",lvl:4,xp:65,title:"Weekend bez planu",desc:"One decydują rano co robimy."},
+  {id:28,who:"older",cat:"bliskość",lvl:4,xp:60,title:"Zapytaj czego się boi",desc:"Wysłuchaj bez bagatelizowania. Powiedz o jednym własnym strachu."},
+  {id:29,who:"younger",cat:"bliskość",lvl:4,xp:55,title:"Sekretny rytuał",desc:"Wymyślcie coś tylko wasze – uścisk, słowo, piosenkę."},
+  {id:30,who:"both",cat:"bliskość",lvl:5,xp:90,title:"Powiedz im czym jest bycie ich mamą",desc:"Każdej osobno. Konkretnie, bez ogólników."},
+  {id:31,who:"both",cat:"obecność",lvl:5,xp:90,title:"Tydzień bez 'za chwilę'",desc:"Przez tydzień zanim powiesz 'za chwilę' – oceniasz czy naprawdę nie możesz teraz."},
+];
+
+let state={xp:0,doneIds:[],reflections:{}};
+let currentTab='todo',currentFilter='all',currentModal=null;
+
+function save(){try{localStorage.setItem('bc3',JSON.stringify(state));}catch(e){}}
+function load(){try{const s=localStorage.getItem('bc3');if(s)state=JSON.parse(s);}catch(e){}}
+
+function curLvl(){return LEVELS.reduce((a,l)=>state.xp>=l.min?l:a,LEVELS[0]);}
+function nxtLvl(){return LEVELS.find(l=>l.min>state.xp);}
+function dots(lvl){return Array.from({length:5},(_,i)=>i<lvl?'●':'○').join('');}
+
+function renderHeader(){
+  const l=curLvl(),n=nxtLvl();
+  document.getElementById('level-icon').textContent=l.icon;
+  document.getElementById('level-badge').textContent=l.name;
+  document.getElementById('xp-text').innerHTML=`${state.xp} XP${n?` · ${n.min-state.xp} do "${n.name}"`:''}`;
+  const pct=n?Math.min(100,((state.xp-l.min)/(n.min-l.min))*100):100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+function renderTodo(){
+  const g=document.getElementById('cards-grid');
+  const list=CHALLENGES.filter(c=>{
+    if(state.doneIds.includes(c.id))return false;
+    if(currentFilter==='all')return true;
+    return c.who===currentFilter;
+  });
+  if(!list.length){
+    g.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✦</div><div class="empty-text">Wszystkie zadania ukończone!</div></div>`;
+    return;
+  }
+  g.innerHTML=list.map(ch=>`
+    <div class="card" onclick="openModal(${ch.id})" style="border-color:${WHO[ch.who].color}33">
+      <div class="card-bar" style="background:${WHO[ch.who].color}"></div>
+      ${state.reflections[ch.id]?'<div class="ref-dot">✦</div>':''}
+      <div class="card-top">
+        <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+        <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+      </div>
+      <div class="card-title">${ch.title}</div>
+      <div class="card-short">${ch.desc.length>70?ch.desc.slice(0,70)+'…':ch.desc}</div>
+      <div class="card-meta">
+        <span class="card-dots">${dots(ch.lvl)}</span>
+        <span class="xp-badge">+${ch.xp} XP</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderDone(){
+  const l=document.getElementById('done-list');
+  const list=CHALLENGES.filter(c=>state.doneIds.includes(c.id));
+  if(!list.length){
+    l.innerHTML=`<div class="empty-state"><div class="empty-icon">◌</div><div class="empty-text">Jeszcze nic ukończonego</div><div class="empty-sub">zacznij od czegoś małego</div></div>`;
+    return;
+  }
+  l.innerHTML=list.map(ch=>`
+    <div class="done-item" onclick="openModal(${ch.id})">
+      <div>
+        <div class="done-title">${ch.title}</div>
+        <div class="done-sub">${WHO[ch.who].label} · ${ch.cat}${state.reflections[ch.id]?' · ✦':''}</div>
+      </div>
+      <span class="done-xp">+${ch.xp} XP</span>
+    </div>`).join('');
+}
+
+function renderReflections(){
+  const l=document.getElementById('reflections-list');
+  const list=CHALLENGES.filter(c=>state.reflections[c.id]);
+  if(!list.length){
+    l.innerHTML=`<div class="empty-state"><div class="empty-icon">◌</div><div class="empty-text">Brak refleksji</div><div class="empty-sub">Kliknij zadanie i zapisz przemyślenia</div></div>`;
+    return;
+  }
+  l.innerHTML=list.map(ch=>`
+    <div class="ref-item">
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+        <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+        ${state.doneIds.includes(ch.id)?'<span style="font-size:10px;color:var(--accent)">✓</span>':''}
+      </div>
+      <div class="ref-item-title">${ch.title}</div>
+      <div class="ref-item-text">${state.reflections[ch.id]}</div>
+    </div>`).join('');
+}
+
+function renderAll(){
+  renderHeader();
+  renderTodo();
+  if(currentTab==='done')renderDone();
+  if(currentTab==='reflections')renderReflections();
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['todo','done','reflections'][i]===tab));
+  document.getElementById('tab-todo').style.display=tab==='todo'?'':'none';
+  document.getElementById('tab-done').style.display=tab==='done'?'':'none';
+  document.getElementById('tab-reflections').style.display=tab==='reflections'?'':'none';
+  if(tab==='done')renderDone();
+  if(tab==='reflections')renderReflections();
+}
+
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  renderTodo();
+}
+
+function openModal(id){
+  const ch=CHALLENGES.find(c=>c.id===id);
+  if(!ch)return;
+  currentModal=ch;
+  document.getElementById('modal-tags').innerHTML=`
+    <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+    <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+    <span class="xp-badge">+${ch.xp} XP</span>`;
+  document.getElementById('modal-title').textContent=ch.title;
+  document.getElementById('modal-desc').textContent=ch.desc;
+  document.getElementById('ref-input').value=state.reflections[ch.id]||'';
+  document.getElementById('saved-note').classList.remove('show');
+  document.getElementById('complete-btn').style.display=state.doneIds.includes(ch.id)?'none':'';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  const val=document.getElementById('ref-input').value.trim();
+  if(currentModal&&val){state.reflections[currentModal.id]=val;save();}
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  currentModal=null;
+  renderAll();
+}
+
+function handleOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function saveReflection(){
+  if(!currentModal)return;
+  const val=document.getElementById('ref-input').value.trim();
+  if(!val)return;
+  state.reflections[currentModal.id]=val;
+  save();
+  const n=document.getElementById('saved-note');
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2000);
+}
+
+function completeModal(){
+  if(!currentModal||state.doneIds.includes(currentModal.id))return;
+  const val=document.getElementById('ref-input').value.trim();
+  if(val)state.reflections[currentModal.id]=val;
+  state.doneIds.push(currentModal.id);
+  state.xp+=currentModal.xp;
+  save();
+  closeModal();
+}
+
+function resetAll(){
+  if(confirm('Zacząć od nowa? Cały postęp i refleksje zostaną usunięte.')){{
+    state={xp:0,doneIds:[],reflections:{}};
+    save();renderAll();switchTab('todo');
+  }}
+}
+
+load();renderAll();
+</script>
+
+</body>
+</html>
