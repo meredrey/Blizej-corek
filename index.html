@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Bliżej córek ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:#0a120a; --bg2:#0d180d; --bg3:#101f10;
+    --border:#1e2e1e; --border2:#2a3e2a; --border3:#3a5a3a;
+    --accent:#6aaa50; --accent2:#4a8a38;
+    --text:#d8f0d0; --text2:#8ab88a; --text3:#5a7a5a; --text4:#3a5a3a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:var(--bg); color:var(--text); font-family:'EB Garamond',Georgia,serif; overscroll-behavior:none; }
+  body { display:flex; flex-direction:column; max-width:600px; margin:0 auto; min-height:100vh; }
+
+#header { padding:24px 20px 0; border-bottom:1px solid var(–border); flex-shrink:0; }
+#header h1 { font-family:‘Cormorant Garamond’,Georgia,serif; font-size:26px; font-weight:300; letter-spacing:0.06em; }
+#header h1 span { color:var(–accent); }
+#subtitle { font-size:11px; color:var(–accent); letter-spacing:0.2em; text-transform:uppercase; margin-top:2px; }
+#level-row { display:flex; align-items:center; gap:10px; margin-top:14px; }
+#level-icon { font-size:22px; color:var(–accent); }
+#level-badge { font-size:11px; color:var(–accent); border:1px solid var(–border2); padding:3px 12px; border-radius:20px; letter-spacing:0.08em; }
+#xp-text { font-size:12px; color:var(–text3); margin-left:auto; }
+#progress-bar { height:2px; background:var(–border); margin:10px 0 0; overflow:hidden; }
+#progress-fill { height:100%; background:linear-gradient(90deg,#3a7a3a,var(–accent)); transition:width 0.8s ease; }
+
+#tabs { display:flex; }
+.tab-btn { flex:1; padding:12px 4px; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; background:none; border:none; color:var(–text4); border-bottom:2px solid transparent; font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.tab-btn.active { color:var(–accent); border-bottom-color:var(–accent); }
+
+#content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+#filters { display:flex; gap:8px; padding:14px 20px 8px; flex-wrap:wrap; }
+.filter-btn { padding:5px 14px; font-size:11px; border-radius:20px; cursor:pointer; border:1px solid var(–border2); background:transparent; color:var(–text3); font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.filter-btn.active { border-color:var(–accent); background:#1a2e1a; color:var(–accent); }
+
+#cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 20px 32px; }
+@media(max-width:360px) { #cards-grid { grid-template-columns:1fr; } }
+
+.card { background:var(–bg2); border-radius:8px; padding:14px 14px 12px; cursor:pointer; transition:background 0.2s; position:relative; overflow:hidden; border:1px solid transparent; }
+.card:active { background:var(–bg3); }
+.card-bar { position:absolute; top:0; left:0; width:3px; height:100%; border-radius:3px 0 0 3px; }
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.who-tag { font-size:9px; letter-spacing:0.06em; border:1px solid; padding:2px 7px; border-radius:10px; white-space:nowrap; }
+.cat-tag { font-size:9px; opacity:0.75; }
+.card-title { font-size:13px; color:var(–text); line-height:1.4; margin-bottom:5px; }
+.card-short { font-size:11px; color:var(–text4); line-height:1.5; }
+.card-meta { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+.xp-badge { font-size:10px; color:var(–accent); background:#1a2e1a; padding:2px 7px; border-radius:10px; }
+.ref-dot { position:absolute; top:10px; right:10px; font-size:11px; color:var(–accent); opacity:0.5; }
+
+.level-header { padding:16px 20px 8px; display:flex; align-items:center; gap:10px; }
+.level-header-name { font-family:‘Cormorant Garamond’,Georgia,serif; font-size:18px; font-weight:300; color:var(–text2); }
+.level-header-progress { font-size:11px; color:var(–text4); margin-left:auto; }
+.level-divider { height:1px; background:var(–border); margin:0 20px 4px; }
+
+.locked-banner { margin:12px 20px; padding:16px; background:var(–bg2); border:1px solid var(–border2); border-radius:8px; text-align:center; }
+.locked-icon { font-size:24px; margin-bottom:8px; color:var(–text4); }
+.locked-text { font-size:13px; color:var(–text4); line-height:1.6; }
+.locked-sub { font-size:11px; color:var(–text4); margin-top:4px; opacity:0.6; font-style:italic; }
+
+.empty-state { text-align:center; padding:60px 24px; color:var(–text4); }
+.empty-icon { font-size:36px; margin-bottom:14px; }
+.empty-text { font-size:14px; line-height:1.7; }
+.empty-sub { font-size:12px; margin-top:6px; opacity:0.6; font-style:italic; }
+
+.done-item { background:var(–bg); border:1px solid var(–border); border-radius:8px; padding:12px 16px; margin:0 20px 8px; display:flex; justify-content:space-between; align-items:center; opacity:0.65; cursor:pointer; }
+.done-title { font-size:13px; color:var(–text4); text-decoration:line-through; }
+.done-sub { font-size:10px; color:var(–text4); margin-top:2px; }
+.done-xp { font-size:11px; color:var(–text4); flex-shrink:0; margin-left:10px; }
+
+.ref-item { background:var(–bg2); border:1px solid var(–border2); border-radius:8px; padding:16px; margin:0 20px 10px; animation:fadeIn 0.3s ease; }
+.ref-item-title { font-size:14px; color:var(–text); margin-bottom:10px; }
+.ref-item-text { font-size:13px; color:var(–text2); line-height:1.7; font-style:italic; border-left:2px solid var(–border2); padding-left:12px; }
+
+.btn-primary { background:var(–accent); border:none; color:var(–bg); padding:10px 20px; border-radius:6px; cursor:pointer; font-size:13px; letter-spacing:0.08em; font-family:‘EB Garamond’,Georgia,serif; font-weight:500; transition:all 0.2s; }
+.btn-primary:active { background:var(–accent2); }
+.btn-secondary { background:#1a2e1a; border:1px solid var(–border3); color:var(–accent); padding:10px 18px; border-radius:6px; cursor:pointer; font-size:13px; letter-spacing:0.08em; font-family:‘EB Garamond’,Georgia,serif; transition:all 0.2s; }
+.btn-secondary:active { background:#1e3a1e; }
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+
+#modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; align-items:flex-end; justify-content:center; }
+#modal-overlay.open { display:flex; }
+#modal-box { background:var(–bg2); border:1px solid var(–border2); border-radius:16px 16px 0 0; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; padding:28px 24px 48px; animation:slideUp 0.3s ease; position:relative; }
+.modal-close { position:absolute; top:18px; right:18px; background:none; border:none; color:var(–text3); cursor:pointer; font-size:26px; line-height:1; }
+.modal-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.modal-title { font-family:‘Cormorant Garamond’,Georgia,serif; font-size:22px; font-weight:300; color:var(–text); line-height:1.3; margin-bottom:14px; }
+.modal-desc { font-size:14px; color:var(–text2); line-height:1.75; margin-bottom:22px; border-left:2px solid var(–border2); padding-left:14px; font-style:italic; }
+.ref-label { font-size:10px; color:var(–text4); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:8px; }
+textarea { width:100%; background:var(–bg); border:1px solid var(–border2); border-radius:6px; color:var(–text); padding:12px; font-size:14px; font-family:‘EB Garamond’,Georgia,serif; line-height:1.6; resize:vertical; min-height:110px; outline:none; transition:border-color 0.2s; }
+textarea:focus { border-color:var(–border3); }
+.saved-note { font-size:11px; color:var(–accent); margin-top:6px; height:16px; transition:opacity 0.3s; opacity:0; }
+.saved-note.show { opacity:1; }
+
+#reset-btn { display:block; margin:20px auto 8px; background:none; border:none; color:var(–text4); font-size:11px; font-family:‘EB Garamond’,Georgia,serif; cursor:pointer; opacity:0.5; letter-spacing:0.08em; padding:8px; }
+
+.unlock-toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#1a3a1a; border:1px solid var(–accent); color:var(–accent); padding:12px 24px; border-radius:8px; font-size:13px; letter-spacing:0.08em; z-index:300; animation:toastIn 0.4s ease; text-align:center; }
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+</style>
+
+</head>
+<body>
+
+<div id="header">
+  <h1>Bliżej córek <span>✦</span></h1>
+  <div id="subtitle">journey ku bliskości</div>
+  <div id="level-row">
+    <span id="level-icon">◌</span>
+    <span id="level-badge">Obserwatorka</span>
+    <span id="xp-text">0 / 30 zadań</span>
+  </div>
+  <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('todo')">Do zrobienia</button>
+    <button class="tab-btn" onclick="switchTab('done')">Zrobione</button>
+    <button class="tab-btn" onclick="switchTab('reflections')">Refleksje</button>
+  </div>
+</div>
+
+<div id="content">
+  <div id="tab-todo">
+    <div id="filters">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Wszystkie</button>
+      <button class="filter-btn" data-filter="both" onclick="setFilter('both')">Obie</button>
+      <button class="filter-btn" data-filter="older" onclick="setFilter('older')">Starsza</button>
+      <button class="filter-btn" data-filter="younger" onclick="setFilter('younger')">Młodsza</button>
+    </div>
+    <div id="cards-grid"></div>
+  </div>
+  <div id="tab-done" style="display:none;padding-top:14px">
+    <div id="done-list"></div>
+    <button id="reset-btn" onclick="resetAll()">↺ zacznij od nowa</button>
+  </div>
+  <div id="tab-reflections" style="display:none;padding-top:14px">
+    <div id="reflections-list"></div>
+  </div>
+</div>
+
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-tags" id="modal-tags"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="ref-label">Twoja refleksja</div>
+    <textarea id="ref-input" placeholder="Co poczułaś? Co odkryłaś? Co było trudne lub piękne…"></textarea>
+    <div class="saved-note" id="saved-note">✦ refleksja zapisana</div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="saveReflection()">✦ Zapisz refleksję</button>
+      <button class="btn-primary" id="complete-btn" onclick="completeModal()" style="margin-left:auto">✓ Ukończone</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS=[
+  {id:1, name:"Obserwatorka",        icon:"◌"},
+  {id:2, name:"Obecna Mama",         icon:"◎"},
+  {id:3, name:"Uważna Mama",         icon:"●"},
+  {id:4, name:"Bliska Mama",         icon:"◉"},
+  {id:5, name:"Bezpieczna Przystań", icon:"✦"},
+];
+
+const WHO={
+  both:   {label:"Obie",        color:"#8fa882"},
+  older:  {label:"Starsza 6l.", color:"#7a9e9f"},
+  younger:{label:"Młodsza 4l.", color:"#c4956a"},
+};
+const CAT={obecność:"#9b8ea8",bliskość:"#c4956a"};
+
+const CHALLENGES=[
+  // ── POZIOM 1 – OBSERWATORKA ──────────────────────────────────────
+  // Obie / obecność
+  {id:101,lvl:1,who:"both",cat:"obecność",xp:15,title:"Podłoga zamiast kanapy",desc:"Usiądź z dziewczynkami na podłodze bez telefonu. Daj się wciągnąć w cokolwiek robią – 10 minut."},
+  {id:102,lvl:1,who:"both",cat:"obecność",xp:15,title:"Wspólne gotowanie",desc:"Ugotujcie razem coś prostego. Każda ma swoje zadanie. Liczy się proces, nie efekt."},
+  {id:103,lvl:1,who:"both",cat:"obecność",xp:15,title:"Spacer bez telefonu",desc:"Wyjdźcie na 15 minut. Telefon zostaje w domu. Patrz na nie, nie przed siebie."},
+  {id:104,lvl:1,who:"both",cat:"obecność",xp:15,title:"Czytanie na głos",desc:"Wybierz książkę którą lubisz. Czytaj obie na raz – każda może siedzieć inaczej."},
+  {id:105,lvl:1,who:"both",cat:"obecność",xp:15,title:"Dzień bez 'za chwilę'",desc:"Przez jeden dzień za każdym razem gdy mówisz 'za chwilę' – sprawdź czy naprawdę nie możesz teraz."},
+  // Obie / bliskość
+  {id:106,lvl:1,who:"both",cat:"bliskość",xp:15,title:"Wieczorny rytuał przytulania",desc:"Przed snem przytul każdą i powiedz jedną konkretną rzecz która Cię w niej dziś zachwyciła."},
+  {id:107,lvl:1,who:"both",cat:"bliskość",xp:15,title:"Śmieszne miny",desc:"Zróbcie konkurs na najśmieszniejszą minę. Śmiej się razem z nich, nie z nich."},
+  {id:108,lvl:1,who:"both",cat:"bliskość",xp:15,title:"Piosenka na dobranoc",desc:"Wymyślcie razem prostą piosenkę na dobranoc – może być bez sensu. Zaśpiewajcie ją."},
+  {id:109,lvl:1,who:"both",cat:"bliskość",xp:15,title:"Co lubimy najbardziej",desc:"Każda mówi trzy rzeczy które lubi robić razem z tobą. Ty też mówisz."},
+  {id:110,lvl:1,who:"both",cat:"bliskość",xp:15,title:"Zdjęcie razem",desc:"Zróbcie razem selfie. Pokaż im to zdjęcie i zapytaj co na nim widzą."},
+  // Starsza / obecność
+  {id:111,lvl:1,who:"older",cat:"obecność",xp:15,title:"15 minut tylko dla niej",desc:"Tylko dla starszej, ona wybiera co robicie, bez telefonu i bez młodszej siostry."},
+  {id:112,lvl:1,who:"older",cat:"obecność",xp:15,title:"Obserwuj jak się bawi",desc:"Usiądź i przez 10 minut tylko obserwuj jak bawi się sama. Nie wchodź, nie komentuj."},
+  {id:113,lvl:1,who:"older",cat:"obecność",xp:15,title:"Zapytaj co robiła w szkole",desc:"Nie 'jak było' – zapytaj o jedną konkretną rzecz. Słuchaj bez przerywania."},
+  {id:114,lvl:1,who:"older",cat:"obecność",xp:15,title:"Naucz się czegoś od niej",desc:"Poproś żeby nauczyła cię czegoś – rysowania, zabawy, piosenki. Bądź prawdziwym uczniem."},
+  {id:115,lvl:1,who:"older",cat:"obecność",xp:15,title:"Narysujcie coś razem",desc:"Wspólna kartka, wspólne kredki. Bez oceniania i bez doradzania co narysować."},
+  // Starsza / bliskość
+  {id:116,lvl:1,who:"older",cat:"bliskość",xp:15,title:"Zapytaj o jej ulubione",desc:"Zapytaj o ulubiony kolor, zwierzę i jedzenie – i naprawdę słuchaj odpowiedzi."},
+  {id:117,lvl:1,who:"older",cat:"bliskość",xp:15,title:"Powiedz co w niej lubisz",desc:"Powiedz jej trzy konkretne rzeczy które w niej lubisz. Nie ogólne – konkretne."},
+  {id:118,lvl:1,who:"older",cat:"bliskość",xp:15,title:"Wspólna układanka",desc:"Usiądźcie razem i złóżcie prostą układankę. Niech ona decyduje gdzie co pasuje."},
+  {id:119,lvl:1,who:"older",cat:"bliskość",xp:15,title:"Zagrajcie w grę planszową",desc:"Dowolna gra którą lubi. Graj uczciwie i ciesz się gdy ona wygrywa."},
+  {id:120,lvl:1,who:"older",cat:"bliskość",xp:15,title:"Opowiedz jej bajkę",desc:"Wymyśl bajkę na bieżąco – z nią jako główną bohaterką. Zapytaj jak ma się skończyć."},
+  // Młodsza / obecność
+  {id:121,lvl:1,who:"younger",cat:"obecność",xp:15,title:"Pobaw się w jej świat",desc:"Na jej zasadach, w jej tempie, minimum 10 minut. Nie przyspieszaj."},
+  {id:122,lvl:1,who:"younger",cat:"obecność",xp:15,title:"Czytaj z przerwami",desc:"Zatrzymuj się i pytaj 'co myślisz co się stanie?'. Czekaj na odpowiedź."},
+  {id:123,lvl:1,who:"younger",cat:"obecność",xp:15,title:"Obserwuj jej skupienie",desc:"Gdy jest skupiona na zabawie – usiądź blisko i obserwuj. Nie przerywaj, tylko bądź."},
+  {id:124,lvl:1,who:"younger",cat:"obecność",xp:15,title:"Pozwól jej wybrać",desc:"Przy jednej codziennej decyzji dziś – co zjeść, w co się ubrać – daj jej wybrać i uszanuj wybór."},
+  {id:125,lvl:1,who:"younger",cat:"obecność",xp:15,title:"Jeden poranek bez pośpiechu",desc:"Wstań wcześniej. Daj jej tyle czasu ile potrzebuje rano. Nie poganiaj."},
+  // Młodsza / bliskość
+  {id:126,lvl:1,who:"younger",cat:"bliskość",xp:15,title:"Zbudujcie coś razem",desc:"Wieżę, namiot, zamek z klocków. Ona decyduje jak ma wyglądać."},
+  {id:127,lvl:1,who:"younger",cat:"bliskość",xp:15,title:"Łaskotki i śmiech",desc:"Poświęć 5 minut tylko na zabawę fizyczną – łaskotki, turlanie, zabawy ciałem. Śmiejcie się."},
+  {id:128,lvl:1,who:"younger",cat:"bliskość",xp:15,title:"Nazwij jej emocje",desc:"Gdy przeżywa cokolwiek – przykucnij i powiedz 'Widzę że jesteś teraz…'. Nie uciszaj."},
+  {id:129,lvl:1,who:"younger",cat:"bliskość",xp:15,title:"Przytulanie na dywanie",desc:"Połóżcie się na dywanie razem. Nie rób nic innego. Tylko bądź blisko."},
+  {id:130,lvl:1,who:"younger",cat:"bliskość",xp:15,title:"Śpiewajcie razem",desc:"Zaśpiewajcie razem jej ulubioną piosenkę – nawet jeśli nie znasz słów, nucz."},
+
+  // ── POZIOM 2 – OBECNA MAMA ───────────────────────────────────────
+  // Obie / obecność
+  {id:201,lvl:2,who:"both",cat:"obecność",xp:20,title:"Wieczór bez ekranów",desc:"Kolacja i wieczór bez telewizora i telefonów. Tylko rozmowa, zabawa, cisza."},
+  {id:202,lvl:2,who:"both",cat:"obecność",xp:20,title:"Spacer bez celu",desc:"Idźcie gdzie one chcą, tak długo jak chcą. Nie spieszcie się."},
+  {id:203,lvl:2,who:"both",cat:"obecność",xp:20,title:"Gotowanie z rozmową",desc:"Gotując razem – pytaj je o ich dzień. Każda odpowiada po kolei."},
+  {id:204,lvl:2,who:"both",cat:"obecność",xp:20,title:"Wspólne sprzątanie",desc:"Posprzątajcie razem jeden pokój. Każda ma rolę. Skończcie razem i pochwalcie się efektem."},
+  {id:205,lvl:2,who:"both",cat:"obecność",xp:20,title:"Wyjście bez planu",desc:"Wyjdźcie i zapytaj je dokąd idziemy. Idź gdzie mówią nawet jeśli to nieoczywiste miejsce."},
+  // Obie / bliskość
+  {id:206,lvl:2,who:"both",cat:"bliskość",xp:20,title:"Stare zdjęcie",desc:"Znajdź stare zdjęcie rodzinne i opowiedz co pamiętasz. Zapytaj jak one to zapamiętały."},
+  {id:207,lvl:2,who:"both",cat:"bliskość",xp:20,title:"Rytuał różyczka i kolec",desc:"Każda mówi jedną dobrą i jedną trudną rzecz z dnia. Ty też mówisz."},
+  {id:208,lvl:2,who:"both",cat:"bliskość",xp:20,title:"Wymyślcie rodzinne słowo",desc:"Stwórzcie razem jedno słowo które będzie oznaczać coś tylko u was – uścisk, stan, rytuał."},
+  {id:209,lvl:2,who:"both",cat:"bliskość",xp:20,title:"Opowiedz o swoim dzieciństwie",desc:"Jedna historia z twojego dzieciństwa – zabawna lub wzruszająca. Dostosowana do ich poziomu."},
+  {id:210,lvl:2,who:"both",cat:"bliskość",xp:20,title:"Tańczcie razem",desc:"Ich muzyka, daj się prowadzić. Nie myśl jak wyglądasz."},
+  // Starsza / obecność
+  {id:211,lvl:2,who:"older",cat:"obecność",xp:20,title:"Zapytaj o przyjaciółkę",desc:"Zapytaj jak ma na imię jej najlepsza przyjaciółka i co razem lubią robić. Słuchaj uważnie."},
+  {id:212,lvl:2,who:"older",cat:"obecność",xp:20,title:"Wieczór tylko ona i ty",desc:"Gdy młodsza śpi – zróbcie coś razem co jest tylko wasze."},
+  {id:213,lvl:2,who:"older",cat:"obecność",xp:20,title:"Odprowadź ją do szkoły inaczej",desc:"Idź inną drogą. Rozmawiajcie o tym co widzicie po drodze."},
+  {id:214,lvl:2,who:"older",cat:"obecność",xp:20,title:"Pobaw się w to co ona lubi",desc:"Przez pół godziny graj w jej ulubioną grę lub zabawę. Na jej zasadach."},
+  {id:215,lvl:2,who:"older",cat:"obecność",xp:20,title:"Zrób z nią coś nowego",desc:"Zaproponuj coś czego jeszcze nie robiłyście – nowa trasa, nowa gra, nowe miejsce."},
+  // Starsza / bliskość
+  {id:216,lvl:2,who:"older",cat:"bliskość",xp:20,title:"Co ją złości w szkole",desc:"Zapytaj co jest dla niej trudne w szkole. Wysłuchaj bez dawania rad."},
+  {id:217,lvl:2,who:"older",cat:"bliskość",xp:20,title:"Zapytaj o marzenia",desc:"Czym chciałaby być gdy dorośnie? Słuchaj poważnie, bez komentowania czy to realne."},
+  {id:218,lvl:2,who:"older",cat:"bliskość",xp:20,title:"Powiedz czym jest dla ciebie",desc:"Powiedz jej konkretnie – czym jest dla ciebie bycie jej mamą. Bez ogólników."},
+  {id:219,lvl:2,who:"older",cat:"bliskość",xp:20,title:"Zrób jej niespodziankę",desc:"Małą, przemyślaną – coś co wiesz że lubi. Nie okazja, zwykły dzień."},
+  {id:220,lvl:2,who:"older",cat:"bliskość",xp:20,title:"Napisz jej liścik",desc:"Krótki liścik do plecaka lub pod poduszkę. Napisz co w niej widzisz."},
+  // Młodsza / obecność
+  {id:221,lvl:2,who:"younger",cat:"obecność",xp:20,title:"Bądź w jej rytmie przez cały poranek",desc:"Jeden poranek bez pośpiechu – jej tempo jest tempem dnia."},
+  {id:222,lvl:2,who:"younger",cat:"obecność",xp:20,title:"Pobaw się lalkami lub autami",desc:"Wejdź w jej świat zabawy. Bądź postacią którą ona ci przydziela."},
+  {id:223,lvl:2,who:"younger",cat:"obecność",xp:20,title:"Malujcie razem",desc:"Farby lub kredki – duża kartka. Maluj razem z nią, nie dla niej."},
+  {id:224,lvl:2,who:"younger",cat:"obecność",xp:20,title:"Posłuchaj jej historii",desc:"Poproś żeby opowiedziała ci historię. Słuchaj do końca, zadawaj pytania."},
+  {id:225,lvl:2,who:"younger",cat:"obecność",xp:20,title:"Wyjdź tylko z nią",desc:"Krótkie wyjście – sklep, plac, park – tylko wy dwie. Bez starszej siostry."},
+  // Młodsza / bliskość
+  {id:226,lvl:2,who:"younger",cat:"bliskość",xp:20,title:"Stwórzcie bajkę",desc:"Zacznij bajkę, w połowie oddaj głos jej. Śmiej się z efektów."},
+  {id:227,lvl:2,who:"younger",cat:"bliskość",xp:20,title:"Zostań w trudnym momencie",desc:"Nie uciszaj, nie odchodź gdy płacze lub jest zła. 'Jestem tu z tobą'."},
+  {id:228,lvl:2,who:"younger",cat:"bliskość",xp:20,title:"Wymyślcie sekretny gest",desc:"Stwórzcie razem gest który znaczy 'kocham cię' – tylko między wami."},
+  {id:229,lvl:2,who:"younger",cat:"bliskość",xp:20,title:"Powiedz jej że jest bezpieczna",desc:"Przed snem powiedz jej wprost: 'jesteś bezpieczna, jestem tutaj'. Przytul mocno."},
+  {id:230,lvl:2,who:"younger",cat:"bliskość",xp:20,title:"Zrób jej niespodziankę",desc:"Mała niespodzianka bez okazji – jej ulubiony owoc, rysunek pod poduszką, ulubiona piosenka."},
+
+  // ── POZIOM 3 – UWAŻNA MAMA ───────────────────────────────────────
+  // Obie / obecność
+  {id:301,lvl:3,who:"both",cat:"obecność",xp:30,title:"Weekend bez planu",desc:"W sobotę rano zapytaj je co chcą dziś robić. Zrób to."},
+  {id:302,lvl:3,who:"both",cat:"obecność",xp:30,title:"Wyłącz powiadomienia na 3 godziny",desc:"Przez trzy godziny telefon bez powiadomień. Bądź tu naprawdę."},
+  {id:303,lvl:3,who:"both",cat:"obecność",xp:30,title:"Wyjście tylko z nimi",desc:"Bez partnera, bez innych dorosłych. One decydują dokąd."},
+  {id:304,lvl:3,who:"both",cat:"obecność",xp:30,title:"Zrób coś czego nie lubisz",desc:"Pobaw się w coś czego nie lubisz – bo one to kochają. I bądź w tym naprawdę."},
+  {id:305,lvl:3,who:"both",cat:"obecność",xp:30,title:"Jeden dzień bez 'poczekaj'",desc:"Za każdym razem gdy przychodzą – odkładasz co robisz. Cały dzień."},
+  // Obie / bliskość
+  {id:306,lvl:3,who:"both",cat:"bliskość",xp:30,title:"Przeproś konkretnie",desc:"Wróć do momentu gdy straciłaś cierpliwość. Powiedz 'Przepraszam za…'. Bez tłumaczeń."},
+  {id:307,lvl:3,who:"both",cat:"bliskość",xp:30,title:"Powiedz im czym jest bycie ich mamą",desc:"Każdej osobno. Konkretnie, bez ogólników. Co czujesz gdy na nie patrzysz."},
+  {id:308,lvl:3,who:"both",cat:"bliskość",xp:30,title:"Stwórzcie rodzinny rytuał",desc:"Wymyślcie razem coś co będziecie robić co tydzień – tylko wy trzy."},
+  {id:309,lvl:3,who:"both",cat:"bliskość",xp:30,title:"Opowiedz o swoim strachu",desc:"Powiedz im o jednej rzeczy której się boisz. Pokaż że dorośli też się boją."},
+  {id:310,lvl:3,who:"both",cat:"bliskość",xp:30,title:"Zapytaj co im sprawia ból",desc:"Czy jest coś co je boli albo martwi? Wysłuchaj bez naprawiania."},
+  // Starsza / obecność
+  {id:311,lvl:3,who:"older",cat:"obecność",xp:30,title:"Porozmawiaj o przyjaźni",desc:"Co lubi w przyjaciółce. Czy coś w przyjaźni ją boli lub martwi."},
+  {id:312,lvl:3,who:"older",cat:"obecność",xp:30,title:"Zrób z nią coś praktycznego",desc:"Razem ugotujcie, naprawcie, posadźcie coś. Ona jest równorzędnym partnerem."},
+  {id:313,lvl:3,who:"older",cat:"obecność",xp:30,title:"Zapytaj co chciałaby zmienić",desc:"W domu, w dniu, w rutynie. Posłuchaj bez oceniania."},
+  {id:314,lvl:3,who:"older",cat:"obecność",xp:30,title:"Pozwól jej podjąć decyzję",desc:"W jednej ważniejszej sprawie – pozwól jej zadecydować i uszanuj to."},
+  {id:315,lvl:3,who:"older",cat:"obecność",xp:30,title:"Zapytaj czego się uczy",desc:"Nie wyników – ale czego się naprawdę uczy. Co ją ciekawi albo nudzi."},
+  // Starsza / bliskość
+  {id:316,lvl:3,who:"older",cat:"bliskość",xp:30,title:"Zapytaj czego się boi",desc:"Wysłuchaj bez bagatelizowania. Powiedz o jednym własnym strachu."},
+  {id:317,lvl:3,who:"older",cat:"bliskość",xp:30,title:"Porozmawiaj o złości",desc:"Zapytaj co ją złości najbardziej. Czy coś ty robisz co ją złości? Słuchaj."},
+  {id:318,lvl:3,who:"older",cat:"bliskość",xp:30,title:"Napisz jej długi liścik",desc:"List – co widzisz w niej, co cię zachwyca, czego jej życzysz. Daj jej go."},
+  {id:319,lvl:3,who:"older",cat:"bliskość",xp:30,title:"Zapytaj jak chce być pocieszana",desc:"Gdy jest jej smutno – co pomaga? Przytulanie, rozmowa, cisza? Zapamiętaj."},
+  {id:320,lvl:3,who:"older",cat:"bliskość",xp:30,title:"Powiedz jej że jest wystarczająca",desc:"Powiedz wprost że nie musi nic robić żeby być kochana. Po prostu jest."},
+  // Młodsza / obecność
+  {id:321,lvl:3,who:"younger",cat:"obecność",xp:30,title:"Jeden poranek w jej rytmie",desc:"Bez pośpiechu. Wstajesz wcześniej żeby dać jej tyle czasu ile potrzebuje."},
+  {id:322,lvl:3,who:"younger",cat:"obecność",xp:30,title:"Obserwuj jej zabawę przez 20 minut",desc:"Tylko obserwuj. Nie włączaj się. Zauważ co robi, jak myśli, jak rozwiązuje problemy."},
+  {id:323,lvl:3,who:"younger",cat:"obecność",xp:30,title:"Zapytaj ją co widzi",desc:"Wyjdźcie i pytaj 'co widzisz?' przy każdym napotkanym miejscu. Słuchaj jej perspektywy."},
+  {id:324,lvl:3,who:"younger",cat:"obecność",xp:30,title:"Daj jej prowadzić",desc:"Podczas spaceru – ona wybiera każdy skręt. Idź za nią."},
+  {id:325,lvl:3,who:"younger",cat:"obecność",xp:30,title:"Bądź z nią gdy zasypia",desc:"Zostań przy niej aż zaśnie. Bez telefonu. Tylko twoja obecność."},
+  // Młodsza / bliskość
+  {id:326,lvl:3,who:"younger",cat:"bliskość",xp:30,title:"Sekretny rytuał",desc:"Wymyślcie coś tylko wasze – uścisk, słowo, piosenkę. Powtarzajcie to codziennie."},
+  {id:327,lvl:3,who:"younger",cat:"bliskość",xp:30,title:"Zostań gdy jest jej trudno",desc:"Gdy płacze lub ma napad złości – zostań. Nie uciszaj. 'Jestem tu'."},
+  {id:328,lvl:3,who:"younger",cat:"bliskość",xp:30,title:"Powiedz że ją kochasz inaczej",desc:"Nie tylko słowami – narysuj, zaśpiewaj, pokaż ciałem że ją kochasz."},
+  {id:329,lvl:3,who:"younger",cat:"bliskość",xp:30,title:"Zapytaj co jej sprawia radość",desc:"Co ją uszczęśliwia? Słuchaj uważnie i zapamiętaj. Spraw to jutro."},
+  {id:330,lvl:3,who:"younger",cat:"bliskość",xp:30,title:"Powiedz jej że jest bezpieczna z tobą",desc:"Powiedz wprost: 'Jestem twoją mamą. Zawsze tu będę.' Przytul mocno."},
+
+  // ── POZIOM 4 – BLISKA MAMA ───────────────────────────────────────
+  // Obie / obecność
+  {id:401,lvl:4,who:"both",cat:"obecność",xp:40,title:"Tydzień bez 'za chwilę'",desc:"Przez tydzień zanim powiesz 'za chwilę' – zatrzymaj się i oceń czy naprawdę nie możesz teraz."},
+  {id:402,lvl:4,who:"both",cat:"obecność",xp:40,title:"Zaplanujcie wspólny wyjazd",desc:"Nawet jednodniowy. One decydują gdzie i co. Ty realizujesz."},
+  {id:403,lvl:4,who:"both",cat:"obecność",xp:40,title:"Gotujcie razem przez tydzień",desc:"Przez tydzień każdego dnia gotujcie razem choć jeden posiłek."},
+  {id:404,lvl:4,who:"both",cat:"obecność",xp:40,title:"Jeden dzień bez telefonu",desc:"Przez jeden dzień telefon zostaje w szufladzie. Bądź z nimi."},
+  {id:405,lvl:4,who:"both",cat:"obecność",xp:40,title:"Stwórzcie album wspomnień",desc:"Razem zróbcie album ze zdjęć i rysunków. Każda opisuje swoje ulubione wspomnienie."},
+  // Obie / bliskość
+  {id:406,lvl:4,who:"both",cat:"bliskość",xp:40,title:"Powiedz o co się martwiłaś",desc:"Opowiedz im o czymś co cię ostatnio martwiło – dostosowane do ich wieku. Pokaż że masz emocje."},
+  {id:407,lvl:4,who:"both",cat:"bliskość",xp:40,title:"Zapytaj co w tobie lubią",desc:"Zapytaj każdą: co lubisz we mnie? Wysłuchaj bez komentowania."},
+  {id:408,lvl:4,who:"both",cat:"bliskość",xp:40,title:"Przeproś za coś z przeszłości",desc:"Wróć do trudnej sytuacji z ostatnich tygodni. Przeproś konkretnie. Bez tłumaczeń."},
+  {id:409,lvl:4,who:"both",cat:"bliskość",xp:40,title:"Porozmawiajcie o śmierci",desc:"Dostosowane do wieku – odpowiedz szczerze na pytania które mają o śmierci, odejściu, stracie."},
+  {id:410,lvl:4,who:"both",cat:"bliskość",xp:40,title:"Powiedz czego się o nich nauczyłaś",desc:"Czego nauczyły cię jako mama? Powiedz im to konkretnie."},
+  // Starsza / obecność
+  {id:411,lvl:4,who:"older",cat:"obecność",xp:40,title:"Zapytaj o szkołę głębiej",desc:"Nie jak było – ale co ją interesuje, co ją nudzi, z kim dobrze jej w klasie."},
+  {id:412,lvl:4,who:"older",cat:"obecność",xp:40,title:"Chodźcie razem na spacer co tydzień",desc:"Jeden stały spacer w tygodniu – tylko wy dwie. Bez programu, tylko rozmowa."},
+  {id:413,lvl:4,who:"older",cat:"obecność",xp:40,title:"Pozwól jej mieć tajemnicę",desc:"Zapytaj czy ma coś tylko dla siebie czego nie chce ci mówić. Uszanuj to bez pytania dalej."},
+  {id:414,lvl:4,who:"older",cat:"obecność",xp:40,title:"Zrób coś co ona zaproponuje",desc:"Poproś ją żeby zaplanowała dla was popołudnie. Zrealizuj jej plan."},
+  {id:415,lvl:4,who:"older",cat:"obecność",xp:40,title:"Porozmawiajcie o tym co trudne",desc:"Zapytaj co jest dla niej najtrudniejsze teraz w życiu. Słuchaj bez naprawiania."},
+  // Starsza / bliskość
+  {id:416,lvl:4,who:"older",cat:"bliskość",xp:40,title:"Porozmawiaj o relacjach",desc:"Czy ktoś ją kiedyś skrzywdził? Czy ona kogoś? Rozmawiajcie bez oceniania."},
+  {id:417,lvl:4,who:"older",cat:"bliskość",xp:40,title:"Powiedz że możesz nie wiedzieć",desc:"Przyznaj się przy niej do czegoś czego nie wiesz lub nie rozumiesz. Pokaż że to ok."},
+  {id:418,lvl:4,who:"older",cat:"bliskość",xp:40,title:"Zapytaj o jej ciało",desc:"Czy lubi swoje ciało? Co w nim lubi? Mów o ciele z szacunkiem i ciekawością."},
+  {id:419,lvl:4,who:"older",cat:"bliskość",xp:40,title:"Porozmawiajcie o granicach",desc:"Co jej przeszkadza w domu, w zabawie, z siostrą? Czy jej granice są szanowane?"},
+  {id:420,lvl:4,who:"older",cat:"bliskość",xp:40,title:"Napisz jej list na przyszłość",desc:"List który przeczyta gdy będzie dorosła. Co jej życzysz, co w niej widzisz."},
+  // Młodsza / obecność
+  {id:421,lvl:4,who:"younger",cat:"obecność",xp:40,title:"Jeden tydzień w jej rytmie",desc:"Przez tydzień rano pytasz ją czego potrzebuje. Organizujesz dzień wokół tego."},
+  {id:422,lvl:4,who:"younger",cat:"obecność",xp:40,title:"Baw się z nią jak dziecko",desc:"Przez 20 minut baw się tak jak ona – na podłodze, bez dorosłej perspektywy."},
+  {id:423,lvl:4,who:"younger",cat:"obecność",xp:40,title:"Zapytaj ją o sen",desc:"Czy miewa sny? Jakie? Opowiedz jej o jednym swoim śnie. Rozmawiajcie o tym."},
+  {id:424,lvl:4,who:"younger",cat:"obecność",xp:40,title:"Chodź razem z nią do łazienki",desc:"Przez tydzień towarzysz jej w wieczornym myciu. Rozmawiajcie, śpiewajcie, bądź z nią."},
+  {id:425,lvl:4,who:"younger",cat:"obecność",xp:40,title:"Daj jej wybrać aktywność na weekend",desc:"W sobotę rano ona decyduje co robimy. Zrób to z pełną obecnością."},
+  // Młodsza / bliskość
+  {id:426,lvl:4,who:"younger",cat:"bliskość",xp:40,title:"Porozmawiajcie o emocjach",desc:"Jakie emocje zna? Kiedy jest jej smutno, wesoło, strasznie? Opowiedz o swoich też."},
+  {id:427,lvl:4,who:"younger",cat:"bliskość",xp:40,title:"Stwórz z nią bezpieczne miejsce",desc:"Zbudujcie razem namiot lub kryjówkę. To jej bezpieczne miejsce – może cię tam zaprosić."},
+  {id:428,lvl:4,who:"younger",cat:"bliskość",xp:40,title:"Powiedz że możesz się mylić",desc:"Przy niej przyznaj się do błędu który zrobiłaś. Pokaż że dorośli też się mylą."},
+  {id:429,lvl:4,who:"younger",cat:"bliskość",xp:40,title:"Zapytaj czego potrzebuje",desc:"Gdy jest rozdrażniona lub smutna – zapytaj 'czego teraz potrzebujesz?' i daj to."},
+  {id:430,lvl:4,who:"younger",cat:"bliskość",xp:40,title:"Powiedz jej że zawsze wrócisz",desc:"Gdy wychodzisz powiedz 'wrócę i będę tu'. Gdy wracasz – przypomnij że wróciłaś."},
+
+  // ── POZIOM 5 – BEZPIECZNA PRZYSTAŃ ──────────────────────────────
+  // Obie / obecność
+  {id:501,lvl:5,who:"both",cat:"obecność",xp:60,title:"Miesiąc uważności",desc:"Przez miesiąc każdego wieczoru pytaj je o jedną rzecz z dnia. Słuchaj naprawdę."},
+  {id:502,lvl:5,who:"both",cat:"obecność",xp:60,title:"Stwórzcie rodzinną tradycję",desc:"Wymyślcie razem tradycję na każdy rok – coś co będzie tylko wasze."},
+  {id:503,lvl:5,who:"both",cat:"obecność",xp:60,title:"Wyłącz telefon na weekend",desc:"Cały weekend bez telefonu. Bądź z nimi w pełni."},
+  {id:504,lvl:5,who:"both",cat:"obecność",xp:60,title:"Zapytaj czego od ciebie potrzebują",desc:"Zapytaj każdą: czego ode mnie potrzebujesz żeby czuć się dobrze? Słuchaj bez obrony."},
+  {id:505,lvl:5,who:"both",cat:"obecność",xp:60,title:"Stwórzcie razem coś trwałego",desc:"Coś co zostanie – zdjęcia, album, rysunek na ścianie, drzewo w ogrodzie."},
+  // Obie / bliskość
+  {id:506,lvl:5,who:"both",cat:"bliskość",xp:60,title:"Powiedz im czym jest bycie ich mamą",desc:"Każdej osobno. Konkretnie i głęboko. Powiedz jak zmieniły twoje życie."},
+  {id:507,lvl:5,who:"both",cat:"bliskość",xp:60,title:"Porozmawiajcie o miłości",desc:"Co to znaczy kochać kogoś? Co one myślą? Co ty myślisz? Rozmawiajcie szczerze."},
+  {id:508,lvl:5,who:"both",cat:"bliskość",xp:60,title:"Zapytaj czy czują się kochane",desc:"Wprost: 'Czy czujesz że cię kocham?' Wysłuchaj odpowiedzi. Może być trudno."},
+  {id:509,lvl:5,who:"both",cat:"bliskość",xp:60,title:"Napisz list do siebie jako mamy",desc:"List do siebie – co robisz dobrze, czego chcesz więcej, czego mniej. Przeczytaj im fragmenty."},
+  {id:510,lvl:5,who:"both",cat:"bliskość",xp:60,title:"Stwórzcie razem manifest rodziny",desc:"Wspólnie napiszcie lub narysujcie: jaką rodziną chcemy być? Co jest dla nas ważne?"},
+  // Starsza / obecność
+  {id:511,lvl:5,who:"older",cat:"obecność",xp:60,title:"Zaplanujcie wspólny projekt",desc:"Coś co będziecie robić razem przez miesiąc – ogród, książka, przepisy, cokolwiek."},
+  {id:512,lvl:5,who:"older",cat:"obecność",xp:60,title:"Zapytaj o jej przyszłość",desc:"Jak wyobraża sobie swoje życie za 10 lat? Słuchaj poważnie i z ciekawością."},
+  {id:513,lvl:5,who:"older",cat:"obecność",xp:60,title:"Bądź przy niej gdy jest jej trudno w szkole",desc:"Gdy wraca z trudnego dnia – odłóż wszystko i bądź. Bez rozwiązań."},
+  {id:514,lvl:5,who:"older",cat:"obecność",xp:60,title:"Stwórzcie wasze miejsce",desc:"Kawiarnia, ławka, park – wasze stałe miejsce gdzie chodzicie tylko wy dwie."},
+  {id:515,lvl:5,who:"older",cat:"obecność",xp:60,title:"Zapytaj jak może ci pomóc",desc:"Czy jest coś co ona mogłaby dla ciebie zrobić co sprawiłoby ci radość?"},
+  // Starsza / bliskość
+  {id:516,lvl:5,who:"older",cat:"bliskość",xp:60,title:"Porozmawiajcie o waszej relacji",desc:"Co jej się w waszej relacji podoba? Co chciałaby żeby było inaczej?"},
+  {id:517,lvl:5,who:"older",cat:"bliskość",xp:60,title:"Powiedz jej że jest bezpieczna z tobą",desc:"Powiedz wprost: zawsze możesz do mnie przyjść z czymkolwiek. Zawsze."},
+  {id:518,lvl:5,who:"older",cat:"bliskość",xp:60,title:"Zapytaj o jej wewnętrzny świat",desc:"Co myśli gdy zasypia? Co ją niepokoi? Co ją zachwyca? Słuchaj bez oceniania."},
+  {id:519,lvl:5,who:"older",cat:"bliskość",xp:60,title:"Powiedz o co się o nią boisz",desc:"Powiedz jej o jednym strachu który masz jako jej mama. Szczerze i bez dramatyzowania."},
+  {id:520,lvl:5,who:"older",cat:"bliskość",xp:60,title:"Napisz jej list który przeczyta za 10 lat",desc:"Co chcesz żeby wiedziała gdy będzie dorosła? Co widzisz w niej teraz?"},
+  // Młodsza / obecność
+  {id:521,lvl:5,who:"younger",cat:"obecność",xp:60,title:"Tydzień w jej rytmie",desc:"Przez tydzień każdy poranek zaczyna się od jej potrzeb. Bez pośpiechu."},
+  {id:522,lvl:5,who:"younger",cat:"obecność",xp:60,title:"Baw się z nią codziennie przez miesiąc",desc:"Każdego dnia minimum 15 minut zabawy na jej zasadach."},
+  {id:523,lvl:5,who:"younger",cat:"obecność",xp:60,title:"Stwórzcie rytuał wieczorny",desc:"Stały rytuał przed snem – tylko wy dwie. Każdego wieczoru."},
+  {id:524,lvl:5,who:"younger",cat:"obecność",xp:60,title:"Zapytaj ją o jej ciało",desc:"Co jej ciało lubi? Co nie lubi? Mów o tym z szacunkiem i ciekawością."},
+  {id:525,lvl:5,who:"younger",cat:"obecność",xp:60,title:"Daj jej przestrzeń i bądź blisko",desc:"Przez godzinę baw się obok niej – nie z nią. Bądź dostępna gdy zechce."},
+  // Młodsza / bliskość
+  {id:526,lvl:5,who:"younger",cat:"bliskość",xp:60,title:"Porozmawiajcie o uczuciach głęboko",desc:"Zapytaj co czuje gdy jest z tobą, gdy cię nie ma, gdy się kłócicie."},
+  {id:527,lvl:5,who:"younger",cat:"bliskość",xp:60,title:"Powiedz że zawsze będziesz",desc:"Powiedz jej wprost: 'Jestem twoją mamą na zawsze. Cokolwiek się stanie.'"},
+  {id:528,lvl:5,who:"younger",cat:"bliskość",xp:60,title:"Stwórzcie razem symbol waszej miłości",desc:"Rysunek, piosenka, gest – coś co symbolizuje waszą więź. Zachowaj to."},
+  {id:529,lvl:5,who:"younger",cat:"bliskość",xp:60,title:"Zapytaj czego od ciebie potrzebuje",desc:"'Czego ode mnie potrzebujesz żeby czuć się szczęśliwa?' Posłuchaj uważnie."},
+  {id:530,lvl:5,who:"younger",cat:"bliskość",xp:60,title:"Powiedz jej że jest wystarczająca",desc:"Powiedz wprost: 'Jesteś dokładnie taka jaka powinna być. Kocham cię taką jaką jesteś.'"},
+];
+
+let state={doneIds:[],reflections:{}};
+let currentTab='todo', currentFilter='all', currentModal=null;
+
+function save(){try{localStorage.setItem('bc4',JSON.stringify(state));}catch(e){}}
+function load(){try{const s=localStorage.getItem('bc4');if(s)state=JSON.parse(s);}catch(e){}}
+
+function getCurrentLevel(){
+  // Level unlocked when all challenges of previous level are done
+  for(let lvl=5;lvl>=1;lvl--){
+    const prev=CHALLENGES.filter(c=>c.lvl===lvl-1);
+    if(lvl===1||prev.every(c=>state.doneIds.includes(c.id))) return lvl;
+  }
+  return 1;
+}
+
+function getLevelProgress(lvl){
+  const all=CHALLENGES.filter(c=>c.lvl===lvl);
+  const done=all.filter(c=>state.doneIds.includes(c.id));
+  return {done:done.length, total:all.length};
+}
+
+function getTotalXP(){
+  return CHALLENGES.filter(c=>state.doneIds.includes(c.id)).reduce((s,c)=>s+c.xp,0);
+}
+
+function dots(lvl){return Array.from({length:5},(_,i)=>i<lvl?'●':'○').join('');}
+
+function renderHeader(){
+  const curLvl=getCurrentLevel();
+  const lvlInfo=LEVELS.find(l=>l.id===curLvl);
+  const prog=getLevelProgress(curLvl);
+  document.getElementById('level-icon').textContent=lvlInfo.icon;
+  document.getElementById('level-badge').textContent=lvlInfo.name;
+  document.getElementById('xp-text').textContent=`${prog.done}/${prog.total} zadań`;
+  const pct=prog.total>0?(prog.done/prog.total)*100:0;
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+function renderTodo(){
+  const grid=document.getElementById('cards-grid');
+  const curLvl=getCurrentLevel();
+  let html='';
+
+  for(let lvl=1;lvl<=5;lvl++){
+    const lvlInfo=LEVELS.find(l=>l.id===lvl);
+    const prog=getLevelProgress(lvl);
+    const isUnlocked=lvl<=curLvl;
+    const isCompleted=prog.done===prog.total;
+
+    // Show level header
+    html+=`<div class="level-header" style="grid-column:1/-1">
+      <span style="font-size:18px;color:${isUnlocked?'var(--accent)':'var(--text4)'}">${lvlInfo.icon}</span>
+      <span class="level-header-name" style="color:${isUnlocked?'var(--text2)':'var(--text4)'}">${lvlInfo.name}</span>
+      <span class="level-header-progress">${prog.done}/${prog.total}</span>
+    </div>
+    <div class="level-divider" style="grid-column:1/-1"></div>`;
+
+    if(!isUnlocked){
+      const prevProg=getLevelProgress(lvl-1);
+      html+=`<div class="locked-banner" style="grid-column:1/-1">
+        <div class="locked-icon">◌</div>
+        <div class="locked-text">Ukończ wszystkie zadania poziomu ${lvl-1} żeby odblokować</div>
+        <div class="locked-sub">${prevProg.done}/${prevProg.total} ukończonych</div>
+      </div>`;
+      continue;
+    }
+
+    let challenges=CHALLENGES.filter(c=>c.lvl===lvl);
+    if(currentFilter!=='all') challenges=challenges.filter(c=>c.who===currentFilter);
+    const pending=challenges.filter(c=>!state.doneIds.includes(c.id));
+
+    if(pending.length===0 && isCompleted){
+      if(currentFilter==='all'){
+        html+=`<div style="grid-column:1/-1;padding:12px 0 8px;text-align:center;font-size:12px;color:var(--accent)">✦ poziom ukończony</div>`;
+      }
+    } else {
+      html+=pending.map(ch=>`
+        <div class="card" onclick="openModal(${ch.id})" style="border-color:${WHO[ch.who].color}33">
+          <div class="card-bar" style="background:${WHO[ch.who].color}"></div>
+          ${state.reflections[ch.id]?'<div class="ref-dot">✦</div>':''}
+          <div class="card-top">
+            <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+            <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+          </div>
+          <div class="card-title">${ch.title}</div>
+          <div class="card-short">${ch.desc.length>70?ch.desc.slice(0,70)+'…':ch.desc}</div>
+          <div class="card-meta">
+            <span style="font-size:10px;color:var(--text4)">+${ch.xp} XP</span>
+            <span class="xp-badge">${ch.cat}</span>
+          </div>
+        </div>`).join('');
+    }
+  }
+  grid.innerHTML=html;
+}
+
+function renderDone(){
+  const list=document.getElementById('done-list');
+  const done=CHALLENGES.filter(c=>state.doneIds.includes(c.id));
+  if(!done.length){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">◌</div><div class="empty-text">Jeszcze nic ukończonego</div><div class="empty-sub">zacznij od czegoś małego</div></div>`;
+    return;
+  }
+  list.innerHTML=done.map(ch=>`
+    <div class="done-item" onclick="openModal(${ch.id})">
+      <div>
+        <div class="done-title">${ch.title}</div>
+        <div class="done-sub">${WHO[ch.who].label} · ${ch.cat} · poz.${ch.lvl}${state.reflections[ch.id]?' · ✦':''}</div>
+      </div>
+      <span class="done-xp">+${ch.xp}</span>
+    </div>`).join('');
+}
+
+function renderReflections(){
+  const list=document.getElementById('reflections-list');
+  const withRef=CHALLENGES.filter(c=>state.reflections[c.id]);
+  if(!withRef.length){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">◌</div><div class="empty-text">Brak refleksji</div><div class="empty-sub">Kliknij zadanie i zapisz przemyślenia</div></div>`;
+    return;
+  }
+  list.innerHTML=withRef.map(ch=>`
+    <div class="ref-item">
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+        <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+        ${state.doneIds.includes(ch.id)?'<span style="font-size:10px;color:var(--accent)">✓</span>':''}
+      </div>
+      <div class="ref-item-title">${ch.title}</div>
+      <div class="ref-item-text">${state.reflections[ch.id]}</div>
+    </div>`).join('');
+}
+
+function renderAll(){
+  renderHeader();
+  renderTodo();
+  if(currentTab==='done') renderDone();
+  if(currentTab==='reflections') renderReflections();
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['todo','done','reflections'][i]===tab));
+  document.getElementById('tab-todo').style.display=tab==='todo'?'':'none';
+  document.getElementById('tab-done').style.display=tab==='done'?'':'none';
+  document.getElementById('tab-reflections').style.display=tab==='reflections'?'':'none';
+  if(tab==='done') renderDone();
+  if(tab==='reflections') renderReflections();
+}
+
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  renderTodo();
+}
+
+function openModal(id){
+  const ch=CHALLENGES.find(c=>c.id===id);
+  if(!ch) return;
+  currentModal=ch;
+  document.getElementById('modal-tags').innerHTML=`
+    <span class="who-tag" style="color:${WHO[ch.who].color};border-color:${WHO[ch.who].color}44">${WHO[ch.who].label}</span>
+    <span class="cat-tag" style="color:${CAT[ch.cat]}">${ch.cat}</span>
+    <span class="xp-badge">+${ch.xp} XP</span>`;
+  document.getElementById('modal-title').textContent=ch.title;
+  document.getElementById('modal-desc').textContent=ch.desc;
+  document.getElementById('ref-input').value=state.reflections[ch.id]||'';
+  document.getElementById('saved-note').classList.remove('show');
+  document.getElementById('complete-btn').style.display=state.doneIds.includes(ch.id)?'none':'';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  const val=document.getElementById('ref-input').value.trim();
+  if(currentModal&&val){state.reflections[currentModal.id]=val;save();}
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  currentModal=null;
+  renderAll();
+}
+
+function handleOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function saveReflection(){
+  if(!currentModal) return;
+  const val=document.getElementById('ref-input').value.trim();
+  if(!val) return;
+  state.reflections[currentModal.id]=val;
+  save();
+  const n=document.getElementById('saved-note');
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2000);
+}
+
+function completeModal(){
+  if(!currentModal||state.doneIds.includes(currentModal.id)) return;
+  const val=document.getElementById('ref-input').value.trim();
+  if(val) state.reflections[currentModal.id]=val;
+  const prevLvl=getCurrentLevel();
+  state.doneIds.push(currentModal.id);
+  save();
+  const newLvl=getCurrentLevel();
+  closeModal();
+  if(newLvl>prevLvl){
+    const lvlInfo=LEVELS.find(l=>l.id===newLvl);
+    showToast(`${lvlInfo.icon} Nowy poziom: ${lvlInfo.name}!`);
+  }
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.className='unlock-toast';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+function resetAll(){
+  if(confirm('Zacząć od nowa? Cały postęp i refleksje zostaną usunięte.')){
+    state={doneIds:[],reflections:{}};
+    save();renderAll();switchTab('todo');
+  }
+}
+
+load();renderAll();
+</script>
+
+</body>
+</html>
